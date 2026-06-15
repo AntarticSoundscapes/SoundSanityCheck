@@ -1,0 +1,4 @@
+numpy
+matplotlib
+jupyter
+# Note: essentia is assumed to be installed in the environment (e.g., system-wide)
