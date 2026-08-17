@@ -14,17 +14,34 @@ This library provides a set of diagnostic functions leveraging Essentia's `Audio
 
 ## Installation
 
-### Prerequisites
-- Python 3.7+
-- **Essentia** (version `2.1-beta6-dev` or similar) must be installed in your environment.
-  - *Note: On macOS, you can install Essentia via Homebrew or custom builds.*
+This project uses [uv](https://docs.astral.sh/uv/) for dependency and environment management.
 
-### Installing the Library
-To install the `soundsanity` package in editable mode, run the following command in the project root:
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) — install with:
+  ```bash
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  ```
+
+### Setting up the environment
+From the project root:
 
 ```bash
-pip install -e .
+uv sync
 ```
+
+This creates a `.venv/`, installs every dependency at the exact versions recorded in
+`uv.lock`, and installs `soundsanity` itself in editable mode.
+
+### Common Tasks
+
+| Task | Command |
+| --- | --- |
+| Sync the environment | `uv sync` |
+| Add a dependency | `uv add <package>` |
+| Add a development-only dependency | `uv add --dev <package>` |
+| Remove a dependency | `uv remove <package>` |
+| Upgrade all locked versions | `uv lock --upgrade` |
+| Run a command in the environment | `uv run <command>` |
 
 ---
 
@@ -44,8 +61,9 @@ SoundSanityCheck/
 │   ├── degradation.py      # Audio degradation utilities for simulated testing
 │   └── plots.py            # Diagnostic plotting functions
 ├── README.md               # Project documentation
-├── requirements.txt        # Library dependencies
-└── setup.py                # Package setup script
+├── pyproject.toml          # Project metadata and dependencies
+├── .python-version         # Python version pinned for uv
+└── uv.lock                 # Fully resolved, reproducible dependency set
 ```
 
 ---

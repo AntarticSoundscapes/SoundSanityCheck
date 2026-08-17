@@ -43,3 +43,10 @@ MANIFEST
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Environment
+.venv/
+
+# uv
+# Note: uv.lock is intentionally committed for reproducible environments.
+.uv-cache/
