@@ -12,7 +12,9 @@ DEFAULT_CONFIG = {
     # Saturation/Clipping config
     "saturation_energy_threshold": -1.0,  # dB threshold for sample energy in saturated region
     "saturation_diff_threshold": 0.001,   # Minimum difference between consecutive saturated samples
-    "saturation_min_duration": 5.0,       # Minimum duration of saturated region in ms
+    "saturation_min_duration": 1.0,       # Minimum duration of saturated region in ms
+                                          # (5.0 ms misses peak clipping: clipped runs on
+                                          #  wind-buffeted recordings top out around 2.5 ms)
     "max_saturation_ratio": 0.001,        # Ratio of clipping above which audio is flagged as 'saturated' (0.1%)
     
     # Silence/Failed recording config
