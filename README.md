@@ -52,14 +52,27 @@ The project is structured as follows:
 ```text
 SoundSanityCheck/
 ├── audio_examples/         # Example soundscape recordings (WAV/MP3)
+│   └── samples/            # Committed 10-second excerpts, by category
 ├── notebooks/              # Jupyter Notebooks for exploration and demos
 │   ├── 01_exploratory_analysis.ipynb  # Running checks on baseline clean files
-│   └── 02_sanity_check_demo.ipynb     # Simulating issues and validating detections
+│   ├── 02_sanity_check_demo.ipynb     # Simulating issues and validating detections
+│   └── 03_batch_report.ipynb          # Analyzing a whole directory at once
 ├── soundsanity/            # Core library package
 │   ├── __init__.py         # Package entrypoint (exposes public API)
 │   ├── analysis.py         # Diagnostic checks (Clicks, Saturation, Silence, Noise)
+│   ├── batch.py            # Directory-level analysis and summaries
+│   ├── cli.py              # `soundsanity-report` command-line front end
 │   ├── degradation.py      # Audio degradation utilities for simulated testing
 │   └── plots.py            # Diagnostic plotting functions
+├── tests/                  # pytest suite
+│   ├── conftest.py         # Shared fixtures (synthetic signals, temp WAV writer)
+│   ├── test_analysis.py    # Diagnostic checks and overall status logic
+│   ├── test_batch.py       # Directory scanning, batch runs, summaries
+│   ├── test_cli.py         # Table rendering and command-line behavior
+│   ├── test_degradation.py # Degradation helpers
+│   └── test_plots.py       # Plot structure smoke tests
+├── scripts/
+│   └── make_samples.py     # Rebuilds audio_examples/samples/ from the full corpus
 ├── README.md               # Project documentation
 ├── pyproject.toml          # Project metadata and dependencies
 ├── .python-version         # Python version pinned for uv
@@ -102,7 +115,7 @@ DEFAULT_CONFIG = {
     # Saturation/Clipping config
     "saturation_energy_threshold": -1.0,  # dB threshold for sample energy in saturated region
     "saturation_diff_threshold": 0.001,   # Minimum difference between consecutive saturated samples
-    "saturation_min_duration": 5.0,       # Minimum duration of saturated region in ms
+    "saturation_min_duration": 1.0,       # Minimum duration of saturated region in ms
     "max_saturation_ratio": 0.001,        # Ratio of clipping above which audio is flagged as 'saturated' (0.1%)
     
     # Silence/Failed recording config
@@ -148,8 +161,10 @@ fig, axs = ss.plot_quality_report(audio, 44100, report, title="Antarctic Soundsc
 
 ## Interactive Jupyter Notebooks
 
-Two Jupyter Notebooks are provided under the `notebooks/` directory:
+Three Jupyter Notebooks are provided under the `notebooks/` directory:
 1. **[01_exploratory_analysis.ipynb](notebooks/01_exploratory_analysis.ipynb)**:
    Loads the baseline files, runs sanity check functions, and displays basic waveform and energy profiles.
 2. **[02_sanity_check_demo.ipynb](notebooks/02_sanity_check_demo.ipynb)**:
    Artificially degrades a clean signal with clicks, clipping, silence, and noise, and tests the sanity check functions to verify and visualize detection thresholds.
+3. **[03_batch_report.ipynb](notebooks/03_batch_report.ipynb)**:
+   Runs the checks over an entire directory, tabulates the results, cross-tabulates folder labels against detected status, and shows how to re-run the corpus with different thresholds.
