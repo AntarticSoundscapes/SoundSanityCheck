@@ -57,11 +57,9 @@ Thumbs.db
 htmlcov/
 
 # Audio corpus
-# The full field recordings run to ~900 MB, which does not belong in git. They
-# are kept outside the repo; only the curated excerpts under
-# audio_examples/samples/ are tracked. See scripts/make_samples.py.
 audio_examples/clean/
 audio_examples/clicky/
 audio_examples/noisy/
 audio_examples/silence/
 audio_examples/wind/
+data/

@@ -14,6 +14,7 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 from .analysis import analyze_recording
+from .corpus import APPLEDOUBLE_PREFIX
 
 #: Extensions treated as audio when scanning a directory. Matched case-insensitively.
 DEFAULT_AUDIO_EXTENSIONS = frozenset(
@@ -51,6 +52,10 @@ def find_audio_files(directory, extensions=None):
     """
     Recursively collect audio files under `directory`.
 
+    macOS AppleDouble sidecars (``._name.wav``) are skipped: they carry an audio
+    extension but hold resource-fork metadata, and appear in their thousands on
+    any corpus copied to a non-native filesystem.
+
     Args:
         directory (str | Path): Directory to scan.
         extensions (iterable of str, optional): Extensions to accept, with the
@@ -75,7 +80,9 @@ def find_audio_files(directory, extensions=None):
     return sorted(
         path
         for path in root.rglob("*")
-        if path.is_file() and path.suffix.lower() in allowed
+        if path.is_file()
+        and path.suffix.lower() in allowed
+        and not path.name.startswith(APPLEDOUBLE_PREFIX)
     )
 
 

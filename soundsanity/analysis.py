@@ -30,6 +30,10 @@ DEFAULT_CONFIG = {
     # Framing config (standard for 44.1kHz audio)
     "frame_size": 1024,
     "hop_size": 512,
+
+    # Rate the loader resamples to. Set this to the recording's native rate to
+    # skip resampling entirely (the Antarctic field corpus is 48 kHz).
+    "sample_rate": 44100,
 }
 
 
@@ -348,10 +352,33 @@ def analyze_recording(file_path, config=None):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Audio file not found: {file_path}")
         
-    # Load audio (downmixed to mono, resampled to 44100Hz by default)
-    sample_rate = 44100
+    # Load audio (downmixed to mono, resampled to cfg["sample_rate"])
+    sample_rate = cfg["sample_rate"]
     loader = es.MonoLoader(filename=file_path, sampleRate=sample_rate)
     audio = loader()
+    
+    report = analyze_audio(audio, sample_rate, cfg)
+    report["file_name"] = os.path.basename(file_path)
+    return report
+
+
+def analyze_audio(audio, sample_rate, config=None):
+    """
+    Perform the full quality analysis on an already-loaded signal.
+
+    This is the body of `analyze_recording` without the file loading, for
+    callers that hold the samples already and would otherwise decode the file a
+    second time.
+
+    Args:
+        audio (np.ndarray): Audio signal array.
+        sample_rate (float): Sample rate of the audio in Hz.
+        config (dict, optional): Custom configuration overrides.
+
+    Returns:
+        dict: The same report `analyze_recording` returns, minus ``file_name``.
+    """
+    cfg = {**DEFAULT_CONFIG, **(config or {})}
     duration = len(audio) / sample_rate
     
     # Run individual diagnostics
@@ -383,7 +410,6 @@ def analyze_recording(file_path, config=None):
         status = "NOISY"
         
     return {
-        "file_name": os.path.basename(file_path),
         "duration": float(duration),
         "clicks": click_res,
         "saturation": sat_res,
