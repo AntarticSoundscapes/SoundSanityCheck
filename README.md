@@ -47,7 +47,7 @@ This creates a `.venv/`, installs every dependency at the exact versions recorde
 
 ## Library Architecture
 
-The project is structured as follows:
+The project core is structured as follows:
 
 ```text
 SoundSanityCheck/
@@ -56,27 +56,20 @@ SoundSanityCheck/
 ├── notebooks/              # Jupyter Notebooks for exploration and demos
 │   ├── 01_exploratory_analysis.ipynb  # Running checks on baseline clean files
 │   ├── 02_sanity_check_demo.ipynb     # Simulating issues and validating detections
-│   └── 03_batch_report.ipynb          # Analyzing a whole directory at once
+│   ├── 03_batch_report.ipynb          # Analyzing a whole directory at once
+│   └── 04_wind_and_weather.ipynb      # Wind vs meteorology, by site and season
 ├── soundsanity/            # Core library package
 │   ├── __init__.py         # Package entrypoint (exposes public API)
 │   ├── analysis.py         # Diagnostic checks (Clicks, Saturation, Silence, Noise)
 │   ├── batch.py            # Directory-level analysis and summaries
 │   ├── cli.py              # `soundsanity-report` command-line front end
+│   ├── corpus.py           # Field inventory: sites, UTC timestamps, gain, device
+│   ├── wind.py             # Wind-noise features (band levels, LF ratio, index)
+│   ├── field.py            # One-pass per-recording analysis for the field corpus
+│   ├── meteo.py            # Station weather, aligned to recording timestamps
+│   ├── report.py           # Weather-controlled aggregations across sites/seasons
 │   ├── degradation.py      # Audio degradation utilities for simulated testing
 │   └── plots.py            # Diagnostic plotting functions
-├── tests/                  # pytest suite
-│   ├── conftest.py         # Shared fixtures (synthetic signals, temp WAV writer)
-│   ├── test_analysis.py    # Diagnostic checks and overall status logic
-│   ├── test_batch.py       # Directory scanning, batch runs, summaries
-│   ├── test_cli.py         # Table rendering and command-line behavior
-│   ├── test_degradation.py # Degradation helpers
-│   └── test_plots.py       # Plot structure smoke tests
-├── scripts/
-│   └── make_samples.py     # Rebuilds audio_examples/samples/ from the full corpus
-├── README.md               # Project documentation
-├── pyproject.toml          # Project metadata and dependencies
-├── .python-version         # Python version pinned for uv
-└── uv.lock                 # Fully resolved, reproducible dependency set
 ```
 
 ---
@@ -161,10 +154,12 @@ fig, axs = ss.plot_quality_report(audio, 44100, report, title="Antarctic Soundsc
 
 ## Interactive Jupyter Notebooks
 
-Three Jupyter Notebooks are provided under the `notebooks/` directory:
+Four Jupyter Notebooks are provided under the `notebooks/` directory:
 1. **[01_exploratory_analysis.ipynb](notebooks/01_exploratory_analysis.ipynb)**:
    Loads the baseline files, runs sanity check functions, and displays basic waveform and energy profiles.
 2. **[02_sanity_check_demo.ipynb](notebooks/02_sanity_check_demo.ipynb)**:
    Artificially degrades a clean signal with clicks, clipping, silence, and noise, and tests the sanity check functions to verify and visualize detection thresholds.
 3. **[03_batch_report.ipynb](notebooks/03_batch_report.ipynb)**:
    Runs the checks over an entire directory, tabulates the results, cross-tabulates folder labels against detected status, and shows how to re-run the corpus with different thresholds.
+4. **[04_wind_and_weather.ipynb](notebooks/04_wind_and_weather.ipynb)**:
+   Joins the field corpus to the Frei station's weather record. Verifies the clock alignment, measures how each site responds to wind speed and direction, and compares seasons at matched wind strength to separate deployment skill from the weather.
